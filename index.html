@@ -38,7 +38,7 @@ out vec3 vNormal;
 void main() {
   vTexCoord.s = aVertexPosition.x + 0.5;
   vTexCoord.t = aVertexPosition.y + 0.5;
-  vNormal = aVertexPosition;
+  vNormal = vec3(vTexCoord.s, vTexCoord.t, aVertexPosition.z);
 
   gl_Position = uProjectionMatrix*uModelViewMatrix*vec4(aVertexPosition, 1.0);
 }
@@ -62,11 +62,18 @@ out vec4 outColor;
 void main() {
   vec3 stadium = vec3(texture(uSampler2, vTexCoord));
   vec3 c = 0.5*stadium;
-  vec2 coord;
-  if (vNormal.z < 0.0) {
-    coord = vec2(vTexCoord.s * 0.5, vTexCoord.t);
+  vec2 coord = vec2(vTexCoord.s, 0.0);
+  if (vNormal.y >= 0.3 && vNormal.y <= 0.7) {
+    coord.t = (vTexCoord.t - 0.3) * 2.5;
   } else {
-    coord = vec2(vTexCoord.s * 0.5 + 0.5, vTexCoord.t);
+    coord = vec2(0.1, 0.1);
+  }
+
+
+  if (vNormal.z < 0.0) {
+    coord = vec2(coord.s * 0.5, coord.t);
+  } else {
+    coord = vec2(coord.s * 0.5 + 0.5, coord.t);
   }
   c = 0.5*stadium + 0.5*(vec3(texture(uSampler, coord)));
    
