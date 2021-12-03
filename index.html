@@ -93,7 +93,7 @@ void main() {
   vec2 coord = vec2(vTexCoord.s, 0.0);
   if (vNormal.y >= 0.3 && vNormal.y <= 0.7 && vNormal.x >= 0.3 && vNormal.x <= 0.7) {
     coord.t = (vTexCoord.t - 0.3) * 2.5;
-    coord.s = (vTexCoord.t)* 2.5;
+    coord.s = (vTexCoord.t)*5;
   } else {
     coord = vec2(0.1, 0.1);
   }
