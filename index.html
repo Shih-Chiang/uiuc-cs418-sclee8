@@ -92,7 +92,7 @@ void main() {
   vec3 c = 0.5*stadium;
   vec2 coord = vec2(vTexCoord.s, 0.0);
   if (vNormal.y >= 0.3 && vNormal.y <= 0.7) {
-    coord.t = (vTexCoord.t - 0.3) * 2;
+    coord.t = (vTexCoord.t - 0.3) * 4;
   } else {
     coord = vec2(0.1, 0.1);
   }
