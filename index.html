@@ -34,13 +34,26 @@ uniform mat4 uProjectionMatrix;
 
 out vec2 vTexCoord;
 out vec3 vNormal;
+out vec3 vRecord;
+
+out vec4 vertex;
+out vec3 N;
 
 void main() {
+
+  vertex = uModelViewMatrix * vec4(aVertexPosition, 1.0);
+
+  //N = vec3(uNormalMatrix * vec4(aVertexNormal, 1.0));
+  N = uNormalMatrix * aVertexNormal;
+
+
+
   vTexCoord.s = aVertexPosition.x + 0.5;
   vTexCoord.t = aVertexPosition.y + 0.5;
   vNormal = vec3(vTexCoord.s, vTexCoord.t, aVertexPosition.z);
 
   gl_Position = uProjectionMatrix*uModelViewMatrix*vec4(aVertexPosition, 1.0);
+  vRecord = vec3(gl_Position.x*0.5 + 0.6, gl_Position.y*0.5+ 0.6, aVertexPosition.z);
 }
 `;
 
@@ -53,14 +66,29 @@ var fs = `#version 300 es
 precision mediump float;
     
 in vec3 vNormal;
+in vec3 vRecord;
 in vec2 vTexCoord;
+
+in vec4 vertex;
+in vec3 N;
+
 uniform sampler2D uSampler;
 uniform sampler2D uSampler2;
 
 out vec4 outColor;
     
 void main() {
+  // Lights
+  vec3 uLightDirection = vec3(-0.25, -0.25, -0.25);
+  vec4 uLightAmbient = vec4(0.03, 0.03, 0.03, 1.0);
+  vec4 uLightDiffuse = vec4(1.0,1.0, 1.0,1.0);
+  vec4 uLightSpecular = vec4(1.0, 1.0, 1.0,1.0);
+  vec4 uMaterialAmbient;
+  vec4 uMaterialDiffuse;
+  vec4 uMaterialSpecular;
+  float uShininess = 1.0;
   vec3 stadium = vec3(texture(uSampler2, vTexCoord));
+  stadium = vec3(texture(uSampler2, vec2(max(0.0, min(vRecord.x*.4,1.0)), max(0.0, min(vRecord.y, 1.0)))));
   vec3 c = 0.5*stadium;
   vec2 coord = vec2(vTexCoord.s, 0.0);
   if (vNormal.y >= 0.3 && vNormal.y <= 0.7) {
@@ -69,6 +97,7 @@ void main() {
     coord = vec2(0.1, 0.1);
   }
 
+  vec3 L = normalize(uLightDirection);
 
   if (vNormal.z < 0.0) {
     coord = vec2(coord.s * 0.5, coord.t);
@@ -79,6 +108,27 @@ void main() {
    
 
   outColor = vec4(c,1.0);
+  uMaterialAmbient = outColor;
+  uMaterialDiffuse = outColor;
+  uMaterialSpecular = outColor;
+
+  float lambertTerm = dot(N, -L);
+
+  vec4 Ia = uLightAmbient * uMaterialAmbient;
+
+  vec4 Id = vec4(0.0,0.0, 0.0, 1.0);
+
+  vec4 Is = vec4(0.0,0.0, 0.0, 1.0);
+  if (lambertTerm > 0.0) {
+    Id = uLightDiffuse * uMaterialDiffuse* lambertTerm;
+    vec3 eyeVec = -vec3(vertex.xyz);
+    vec3 E = normalize(eyeVec);
+    vec3 R = reflect(L,N);
+    float specular = pow(max(dot(R, E), 0.0), uShininess);
+    Is = uLightSpecular*uMaterialSpecular* specular;
+  }
+
+  outColor = vec4(vec3(Ia+Id+Is), 1.0);
 }
 `;
 
