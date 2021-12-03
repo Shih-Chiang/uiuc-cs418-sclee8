@@ -91,7 +91,7 @@ void main() {
   stadium = vec3(texture(uSampler2, vec2(max(0.0, min(vRecord.x*.4,1.0)), max(0.0, min(vRecord.y, 1.0)))));
   vec3 c = 0.5*stadium;
   vec2 coord = vec2(vTexCoord.s, 0.0);
-  if (vNormal.y >= 0.3 && vNormal.y <= 0.6) {
+  if (vNormal.y >= 0.3 && vNormal.y <= 0.5) {
     coord.t = (vTexCoord.t - 0.3) * 2.5;
   } else {
     coord = vec2(0.1, 0.1);
