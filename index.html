@@ -133,7 +133,7 @@ void main() {
     Is = uLightSpecular*uMaterialSpecular* specular;
   }
 
-  outColor = vec4(vec3(Ia+Id+Is), 1.0);
+  outColor = vec4(vec3(Ia+0.5*Id+Is), 1.0);
 }
 `;
 
